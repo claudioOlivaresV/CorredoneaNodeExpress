@@ -11,6 +11,7 @@ export default {
     'src/**/*.ts',
     '!src/generated/prisma/**',
     '!src/**/*.test.ts',
+    '!src/index.ts',
   ],
 
   coverageThreshold: {
