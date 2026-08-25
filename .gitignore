@@ -1,6 +1,8 @@
 
 
 
+backup_*.sql
+*.dump
 
 
 .env
