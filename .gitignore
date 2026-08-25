@@ -1,0 +1,15 @@
+
+
+
+
+
+.env
+
+/mongo
+/postgres/
+node_modules/
+dist/
+build/
+coverage/
+.DS_Store
+/src/generated/prisma
