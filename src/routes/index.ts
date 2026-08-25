@@ -1,7 +1,9 @@
-import app from '../app';
+import { Router } from 'express';
 
-const PORT = process.env.PORT || 3000;
+import rolesRouter from '../roles/routes';
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+const router = Router();
+
+router.use('/roles', rolesRouter);
+
+export default router;
