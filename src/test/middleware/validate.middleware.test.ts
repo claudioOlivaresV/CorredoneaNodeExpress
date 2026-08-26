@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { describe, expect, it, jest, beforeEach } from '@jest/globals';
+
 import { validate } from '../../middleware/validate.middleware';
 
 jest.mock('express-validator', () => ({
@@ -11,7 +12,10 @@ const mockedValidationResult = validationResult as unknown as jest.Mock;
 
 describe('validate middleware', () => {
   let req: Partial<Request>;
-  let res: any;
+  let res: {
+    status: jest.Mock;
+    json: jest.Mock;
+  };
   let next: NextFunction;
 
   beforeEach(() => {
@@ -33,7 +37,7 @@ describe('validate middleware', () => {
       array: () => [],
     });
 
-    validate(req as Request, res as Response, next);
+    validate(req as Request, res as unknown as Response, next);
 
     expect(next).toHaveBeenCalledTimes(1);
 
@@ -57,7 +61,7 @@ describe('validate middleware', () => {
       array: () => errors,
     });
 
-    validate(req as Request, res as Response, next);
+    validate(req as Request, res as unknown as Response, next);
 
     expect(res.status).toHaveBeenCalledWith(400);
 

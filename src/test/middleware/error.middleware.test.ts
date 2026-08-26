@@ -19,12 +19,7 @@ describe('errorMiddleware', () => {
       message: 'Error de prueba',
     };
 
-    errorMiddleware(
-      err,
-      {} as Request,
-      res as Response,
-      jest.fn() as NextFunction,
-    );
+    errorMiddleware(err, {} as Request, res as Response);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
@@ -35,12 +30,7 @@ describe('errorMiddleware', () => {
   it('debería responder 500 con mensaje por defecto', () => {
     const err = {};
 
-    errorMiddleware(
-      err,
-      {} as Request,
-      res as Response,
-      jest.fn() as NextFunction,
-    );
+    errorMiddleware(err, {} as Request, res as Response);
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
