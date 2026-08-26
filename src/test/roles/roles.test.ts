@@ -1,8 +1,8 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import request from 'supertest';
 
-import app from '../app';
-import { prisma } from '../config/prismaConfig';
+import app from '../../app';
+import { prisma } from '../../config/prismaConfig';
 
 describe('GET /api/roles', () => {
   it('debería retornar los roles', async () => {
