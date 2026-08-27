@@ -33,6 +33,7 @@ export class AuthService {
 
     const token = this.jwtService.generateToken({
       sub: user.id,
+      role: user.role.name,
     });
 
     return {
