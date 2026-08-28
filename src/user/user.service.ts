@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { CreateUserDto, UserResponseDto } from './user.types';
 import { prisma } from '../config/prismaConfig';
 import { BadRequestError, ConflictError } from '../errors/app.errors';
+import { Role } from '../constants/roles.enum';
 
 export class UserService {
   constructor() {}
@@ -27,6 +28,19 @@ export class UserService {
 
     if (!role || !role.active) {
       throw new BadRequestError('El rol no es válido');
+    }
+    if (role.name === Role.ADMIN) {
+      const existingAdmin = await prisma.users.findFirst({
+        where: {
+          role: {
+            name: Role.ADMIN,
+          },
+        },
+      });
+
+      if (existingAdmin) {
+        throw new ConflictError('Ya existe un administrador');
+      }
     }
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const user = await prisma.users.create({

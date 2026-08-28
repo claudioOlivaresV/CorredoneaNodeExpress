@@ -17,7 +17,6 @@ userRouter.post(
   validate,
   requireRole(Role.ADMIN),
   userController.create,
-  userController.create,
 );
 
 userRouter.patch('/:id', requireRole(Role.ADMIN), userController.update);
