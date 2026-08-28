@@ -5,6 +5,8 @@ import { UnauthorizedError } from '../../errors/app.errors';
 import { JwtService } from '../../services/jwt.service';
 import { LoginResponse } from './auth.types';
 
+const DUMMY_PASSWORD_HASH = '$2b$10$...';
+
 export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
 
@@ -18,21 +20,17 @@ export class AuthService {
       },
     });
 
-    if (!user) {
-      throw new UnauthorizedError('Credenciales inválidas');
-    }
-    if (!user.active) {
-      throw new UnauthorizedError('Credenciales inválidas');
-    }
+    const passwordHash = user?.password ?? DUMMY_PASSWORD_HASH;
 
-    const isValidPassword = await bcrypt.compare(dto.password, user.password);
+    const isValidPassword = await bcrypt.compare(dto.password, passwordHash);
 
-    if (!isValidPassword) {
+    if (!user || !user.active || !isValidPassword) {
       throw new UnauthorizedError('Credenciales inválidas');
     }
 
     const token = this.jwtService.generateToken({
       sub: user.id,
+      role: user.role.name,
     });
 
     return {

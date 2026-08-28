@@ -63,6 +63,7 @@ describe('AuthService', () => {
 
     expect(jwtService.generateToken).toHaveBeenCalledWith({
       sub: 1,
+      role: 'USER',
     });
   });
   it('debería rechazar si el usuario no existe', async () => {
