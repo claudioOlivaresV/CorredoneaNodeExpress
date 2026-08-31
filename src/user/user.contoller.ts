@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { CreateUserDto, UpdatePasswordDto, UpdateUserDto } from './user.types';
 import { UserService } from './user.service';
+import { Role } from '../constants/roles.enum';
 
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -19,26 +20,40 @@ export class UserController {
   };
 
   update = async (req: Request, res: Response) => {
-    const { email } = req.body as UpdateUserDto;
+    const id = Number(req.params.id);
 
-    // const result = await this.authService.login({
-    //   email,
-    //   password,
-    // });
+    const dto = req.body as UpdateUserDto;
 
-    return res.status(200).json('update');
+    const result = await this.userService.update(id, dto);
+
+    return res.status(200).json(result);
   };
   updatePassword = async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+
     const { password } = req.body as UpdatePasswordDto;
 
-    return res.status(200).json('updatePassword');
+    return res.status(200).json('editado');
   };
 
   deactivate = async (req: Request, res: Response) => {
-    return res.status(200).json('deactivate');
+    const id = Number(req.params.id);
+
+    const result = await this.userService.deactivate(id);
+
+    return res.status(200).json(result);
   };
 
   activate = async (req: Request, res: Response) => {
-    return res.status(200).json('activate');
+    const id = Number(req.params.id);
+
+    const result = await this.userService.activate(id);
+
+    return res.status(200).json(result);
+  };
+  getAll = async (req: Request, res: Response) => {
+    const result = await this.userService.getAll();
+
+    return res.status(200).json(result);
   };
 }

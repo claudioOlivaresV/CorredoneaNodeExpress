@@ -8,7 +8,8 @@ export interface UserResponseDto {
   id: number;
   name: string;
   email: string;
-  role_id: number;
+  role_id?: number;
+  role?: string;
   active: boolean;
   created_at: Date;
 }
@@ -16,7 +17,6 @@ export interface UpdateUserDto {
   name?: string;
   email?: string;
   role_id?: number;
-  active?: boolean;
 }
 export interface UpdatePasswordDto {
   password: string;
