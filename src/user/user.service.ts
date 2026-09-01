@@ -1,7 +1,12 @@
 import bcrypt from 'bcryptjs';
 
 // import { JwtService } from '../../services/jwt.service';
-import { CreateUserDto, UpdateUserDto, UserResponseDto } from './user.types';
+import {
+  CreateUserDto,
+  UpdatePasswordDto,
+  UpdateUserDto,
+  UserResponseDto,
+} from './user.types';
 import { prisma } from '../config/prismaConfig';
 import {
   BadRequestError,
@@ -243,6 +248,51 @@ export class UserService {
       role: updatedUser.role.name,
       active: updatedUser.active,
       created_at: updatedUser.created_at,
+    };
+  }
+  async updatePassword(
+    id: number,
+    dto: UpdatePasswordDto,
+    requesterId: number,
+    requesterRole: Role,
+  ): Promise<{ message: string }> {
+    const user = await prisma.users.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundError('Usuario no encontrado');
+    }
+
+    // Los usuarios que no son ADMIN
+    // solo pueden cambiar su propia contraseña
+    if (requesterRole !== Role.ADMIN && requesterId !== id) {
+      throw new ForbiddenError(
+        'No puedes cambiar la contraseña de otro usuario',
+      );
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+
+    await prisma.users.update({
+      where: {
+        id,
+      },
+      data: {
+        password: passwordHash,
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    return {
+      message: 'Contraseña actualizada correctamente',
     };
   }
 }

@@ -79,6 +79,64 @@ userRouter.post(
   userController.create,
 );
 
+/**
+ * @swagger
+ * /api/user/{id}:
+ *   patch:
+ *     summary: Actualizar usuario
+ *     description: Permite al administrador actualizar el nombre, email o rol de un usuario. No se permite asignar el rol ADMIN.
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del usuario que se desea actualizar
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         example: 2
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 maxLength: 100
+ *                 description: Nombre del usuario
+ *                 example: Juan Pérez
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 maxLength: 150
+ *                 description: Email del usuario
+ *                 example: juan.perez@email.com
+ *               role_id:
+ *                 type: integer
+ *                 minimum: 1
+ *                 description: ID del nuevo rol. No puede ser el rol ADMIN.
+ *                 example: 2
+ *     responses:
+ *       200:
+ *         description: Usuario actualizado correctamente
+ *       400:
+ *         description: Datos inválidos o rol no válido
+ *       401:
+ *         description: Token no proporcionado, inválido o expirado
+ *       403:
+ *         description: No tienes permisos para realizar esta operación o se intenta asignar el rol ADMIN
+ *       404:
+ *         description: Usuario no encontrado
+ *       409:
+ *         description: El email ya está registrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 userRouter.patch(
   '/:id',
   userIdValidator,
@@ -87,6 +145,7 @@ userRouter.patch(
   requireRole(Role.ADMIN),
   userController.update,
 );
+
 userRouter.patch(
   '/:id/password',
   userIdValidator,

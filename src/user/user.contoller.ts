@@ -31,9 +31,16 @@ export class UserController {
   updatePassword = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
 
-    const { password } = req.body as UpdatePasswordDto;
+    const dto = req.body as UpdatePasswordDto;
 
-    return res.status(200).json('editado');
+    const result = await this.userService.updatePassword(
+      id,
+      dto,
+      Number(req.user!.sub),
+      req.user!.role as Role,
+    );
+
+    return res.status(200).json(result);
   };
 
   deactivate = async (req: Request, res: Response) => {

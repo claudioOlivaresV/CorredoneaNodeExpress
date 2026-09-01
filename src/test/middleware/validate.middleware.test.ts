@@ -66,7 +66,7 @@ describe('validate middleware', () => {
     expect(res.status).toHaveBeenCalledWith(400);
 
     expect(res.json).toHaveBeenCalledWith({
-      errors,
+      errors: ['El email es obligatorio'],
     });
 
     expect(next).not.toHaveBeenCalled();
