@@ -4,7 +4,6 @@ import { AuthService } from './auth.service';
 import { loginValidator } from './auth.validators';
 import { validate } from '../../middleware/validate.middleware';
 import { JwtService } from '../../services/jwt.service';
-import { loginRateLimiter } from './auth.rate-limit';
 
 const router = Router();
 
