@@ -580,10 +580,6 @@ describe('UserService', () => {
   it('debería rechazar si el usuario no existe al cambiar contraseña', async () => {
     jest.mocked(prisma.users.findUnique).mockResolvedValue(null);
 
-    const dto: UpdatePasswordDto = {
-      password: 'NuevaPassword123',
-    };
-
     expect(prisma.users.update).not.toHaveBeenCalled();
   });
 

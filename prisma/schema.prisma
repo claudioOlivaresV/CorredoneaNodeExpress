@@ -51,6 +51,21 @@ model properties {
   agent users? @relation("property_agent", fields: [agent_id], references: [id])
 
   contracts rental_contracts[]
+  images    property_images[]
+}
+
+model property_images {
+  id          Int      @id @default(autoincrement())
+  property_id Int
+
+  url         String   @db.VarChar(500)
+  public_id   String   @db.VarChar(255)
+
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+
+  property properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  @@index([property_id])
 }
 
 model rental_contracts {
