@@ -3,7 +3,10 @@ import { Router } from 'express';
 import { validate } from '../middleware/validate.middleware';
 import { requireRole } from '../middleware/require-role.middleware';
 import { Role } from '../constants/roles.enum';
-import { rentalContractCreateValidator } from './contract.validators';
+import {
+  rentalContractCreateValidator,
+  rentalContractIdValidator,
+} from './contract.validators';
 import { ContractsService } from './contract.service';
 import { ContractController } from './contract.controller';
 
@@ -22,25 +25,19 @@ rentalContractsRouter.post(
 );
 
 rentalContractsRouter.get(
-  '/',
+  '/:id',
+  rentalContractIdValidator,
   validate,
   requireRole(Role.ADMIN, Role.CORREDOR),
-  //   rentalContractsController.getAll,
-);
-
-rentalContractsRouter.get(
-  '/:id',
-  //   rentalContractIdValidator,
-  validate,
-  //   rentalContractsController.getById,
+  contractController.getById,
 );
 
 rentalContractsRouter.patch(
-  '/:id/deactivate',
-  //   rentalContractIdValidator,
+  '/:id/cancel',
+  rentalContractIdValidator,
   validate,
   requireRole(Role.ADMIN, Role.CORREDOR),
-  //   rentalContractsController.deactivate,
+  contractController.cancel,
 );
 
 export default rentalContractsRouter;

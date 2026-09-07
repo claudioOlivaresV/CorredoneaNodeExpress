@@ -19,4 +19,19 @@ export class ContractController {
 
     return res.status(200).json(result);
   };
+  getById = async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+    console.log(id);
+
+    const contract = await this.contractService.getById(id);
+
+    return res.status(200).json(contract);
+  };
+  cancel = async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+
+    const result = await this.contractService.cancel(id);
+
+    return res.status(200).json(result);
+  };
 }
