@@ -24,6 +24,12 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+app.get('/health', (_req, res) => {
+  res.status(200).json({
+    status: 'ok',
+  });
+});
+
 app.use('/api', routes);
 
 export default app;
