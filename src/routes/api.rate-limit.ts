@@ -5,6 +5,7 @@ export const apiRateLimiter = rateLimit({
   limit: 10,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
+  skipSuccessfulRequests: true,
   handler: (req, res) => {
     return res.status(429).json({
       message: 'Demasiados intentos. Intenta nuevamente más tarde.',
