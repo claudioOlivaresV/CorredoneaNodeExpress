@@ -31,6 +31,7 @@ export interface PropertyFilters {
   max_price?: number;
   agent_id?: number;
   owner_id?: number;
+  idtoken?: string;
 }
 
 export interface PropertyContractResponse {

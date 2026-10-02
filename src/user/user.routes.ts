@@ -232,5 +232,9 @@ userRouter.patch(
   requireRole(Role.ADMIN),
   userController.activate,
 );
-userRouter.get('/', requireRole(Role.ADMIN), userController.getAll);
+userRouter.get(
+  '/',
+  requireRole(Role.ADMIN, Role.CORREDOR),
+  userController.getAll,
+);
 export default userRouter;
