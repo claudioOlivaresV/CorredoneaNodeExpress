@@ -81,6 +81,14 @@ const mockAgent = {
   },
 };
 
+const mockAuthenticatedUser = {
+  id: 2,
+  active: true,
+  role: {
+    name: Role.CORREDOR,
+  },
+};
+
 describe('PropertiesService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -330,9 +338,12 @@ describe('PropertiesService', () => {
 
   describe('getAll', () => {
     it('debe obtener todas las propiedades', async () => {
+      mockUserFindUnique.mockResolvedValue(mockAuthenticatedUser);
       mockFindMany.mockResolvedValue([mockProperty]);
 
-      const result = await service.getAll();
+      const result = await service.getAll({
+        idtoken: '2',
+      });
 
       expect(result).toEqual([
         {
@@ -347,6 +358,15 @@ describe('PropertiesService', () => {
         },
       ]);
 
+      expect(mockUserFindUnique).toHaveBeenCalledWith({
+        where: {
+          id: 2,
+        },
+        include: {
+          role: true,
+        },
+      });
+
       expect(mockFindMany).toHaveBeenCalledWith({
         where: {},
         orderBy: {
@@ -356,10 +376,12 @@ describe('PropertiesService', () => {
     });
 
     it('debe filtrar por status', async () => {
+      mockUserFindUnique.mockResolvedValue(mockAuthenticatedUser);
       mockFindMany.mockResolvedValue([]);
 
       await service.getAll({
         status: 'AVAILABLE',
+        idtoken: '2',
       });
 
       expect(mockFindMany).toHaveBeenCalledWith({
@@ -373,10 +395,12 @@ describe('PropertiesService', () => {
     });
 
     it('debe filtrar por rango mínimo de precio', async () => {
+      mockUserFindUnique.mockResolvedValue(mockAuthenticatedUser);
       mockFindMany.mockResolvedValue([]);
 
       await service.getAll({
         min_price: 300000,
+        idtoken: '2',
       });
 
       expect(mockFindMany).toHaveBeenCalledWith({
@@ -392,10 +416,12 @@ describe('PropertiesService', () => {
     });
 
     it('debe filtrar por rango máximo de precio', async () => {
+      mockUserFindUnique.mockResolvedValue(mockAuthenticatedUser);
       mockFindMany.mockResolvedValue([]);
 
       await service.getAll({
         max_price: 600000,
+        idtoken: '2',
       });
 
       expect(mockFindMany).toHaveBeenCalledWith({
@@ -411,11 +437,13 @@ describe('PropertiesService', () => {
     });
 
     it('debe filtrar por rango completo de precio', async () => {
+      mockUserFindUnique.mockResolvedValue(mockAuthenticatedUser);
       mockFindMany.mockResolvedValue([]);
 
       await service.getAll({
         min_price: 300000,
         max_price: 600000,
+        idtoken: '2',
       });
 
       expect(mockFindMany).toHaveBeenCalledWith({
@@ -431,16 +459,18 @@ describe('PropertiesService', () => {
       });
     });
 
-    it('debe filtrar por agent_id', async () => {
+    it('debe filtrar por agent_id cuando corresponde al usuario autenticado', async () => {
+      mockUserFindUnique.mockResolvedValue(mockAuthenticatedUser);
       mockFindMany.mockResolvedValue([]);
 
       await service.getAll({
-        agent_id: 5,
+        agent_id: 2,
+        idtoken: '2',
       });
 
       expect(mockFindMany).toHaveBeenCalledWith({
         where: {
-          agent_id: 5,
+          agent_id: 2,
         },
         orderBy: {
           created_at: 'desc',
@@ -448,11 +478,42 @@ describe('PropertiesService', () => {
       });
     });
 
+    it('debe lanzar BadRequestError si el CORREDOR intenta consultar otro agent_id', async () => {
+      mockUserFindUnique.mockResolvedValue(mockAuthenticatedUser);
+
+      await expect(
+        service.getAll({
+          agent_id: 5,
+          idtoken: '2',
+        }),
+      ).rejects.toBeInstanceOf(BadRequestError);
+
+      expect(mockFindMany).not.toHaveBeenCalled();
+    });
+
+    it('debe permitir consultar sin agent_id aunque el usuario sea CORREDOR', async () => {
+      mockUserFindUnique.mockResolvedValue(mockAuthenticatedUser);
+      mockFindMany.mockResolvedValue([]);
+
+      await service.getAll({
+        idtoken: '2',
+      });
+
+      expect(mockFindMany).toHaveBeenCalledWith({
+        where: {},
+        orderBy: {
+          created_at: 'desc',
+        },
+      });
+    });
+
     it('debe filtrar por owner_id', async () => {
+      mockUserFindUnique.mockResolvedValue(mockAuthenticatedUser);
       mockFindMany.mockResolvedValue([]);
 
       await service.getAll({
         owner_id: 3,
+        idtoken: '2',
       });
 
       expect(mockFindMany).toHaveBeenCalledWith({
@@ -466,6 +527,7 @@ describe('PropertiesService', () => {
     });
 
     it('debe aplicar todos los filtros juntos', async () => {
+      mockUserFindUnique.mockResolvedValue(mockAuthenticatedUser);
       mockFindMany.mockResolvedValue([mockProperty]);
 
       await service.getAll({
@@ -474,6 +536,7 @@ describe('PropertiesService', () => {
         max_price: 600000,
         agent_id: 2,
         owner_id: 1,
+        idtoken: '2',
       });
 
       expect(mockFindMany).toHaveBeenCalledWith({
@@ -493,6 +556,8 @@ describe('PropertiesService', () => {
     });
 
     it('debe convertir Decimal a number', async () => {
+      mockUserFindUnique.mockResolvedValue(mockAuthenticatedUser);
+
       mockFindMany.mockResolvedValue([
         {
           ...mockProperty,
@@ -503,17 +568,60 @@ describe('PropertiesService', () => {
         },
       ]);
 
-      const result = await service.getAll();
+      const result = await service.getAll({
+        idtoken: '2',
+      });
 
       expect(result[0].monthly_rent).toBe(550000);
     });
 
     it('debe retornar arreglo vacío cuando no existen propiedades', async () => {
+      mockUserFindUnique.mockResolvedValue(mockAuthenticatedUser);
       mockFindMany.mockResolvedValue([]);
 
-      const result = await service.getAll();
+      const result = await service.getAll({
+        idtoken: '2',
+      });
 
       expect(result).toEqual([]);
+    });
+
+    it('debe lanzar NotFoundError si el usuario autenticado no existe', async () => {
+      mockUserFindUnique.mockResolvedValue(null);
+
+      await expect(
+        service.getAll({
+          idtoken: '999',
+        }),
+      ).rejects.toBeInstanceOf(NotFoundError);
+
+      expect(mockFindMany).not.toHaveBeenCalled();
+    });
+
+    it('debe permitir agent_id diferente si el usuario no es CORREDOR', async () => {
+      mockUserFindUnique.mockResolvedValue({
+        id: 1,
+        active: true,
+        role: {
+          name: Role.ADMIN,
+        },
+      });
+
+      mockFindMany.mockResolvedValue([]);
+
+      await service.getAll({
+        agent_id: 5,
+        idtoken: '1',
+      });
+
+      expect(mockFindMany).toHaveBeenCalledWith({
+        where: {
+          agent_id: 5,
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+      });
     });
   });
 
@@ -542,7 +650,7 @@ describe('PropertiesService', () => {
         ],
       });
 
-      const result = await service.getById(1);
+      const result = await service.getById(1, '2', Role.CORREDOR);
 
       expect(result).toEqual({
         id: 1,
@@ -572,8 +680,23 @@ describe('PropertiesService', () => {
       expect(mockFindUnique).toHaveBeenCalledWith({
         where: {
           id: 1,
+          agent_id: 2,
         },
         include: {
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          agent: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
           contracts: {
             select: {
               id: true,
@@ -598,7 +721,7 @@ describe('PropertiesService', () => {
         contracts: [],
       });
 
-      const result = await service.getById(1);
+      const result = await service.getById(1, '2', Role.CORREDOR);
 
       expect(result.contracts).toEqual([]);
       expect(result.description).toBeNull();
@@ -609,7 +732,93 @@ describe('PropertiesService', () => {
     it('debe lanzar NotFoundError si la propiedad no existe', async () => {
       mockFindUnique.mockResolvedValue(null);
 
-      await expect(service.getById(999)).rejects.toBeInstanceOf(NotFoundError);
+      await expect(
+        service.getById(999, '2', Role.CORREDOR),
+      ).rejects.toBeInstanceOf(NotFoundError);
+    });
+
+    it('debe filtrar por id y no por agent_id cuando el usuario no es CORREDOR', async () => {
+      mockFindUnique.mockResolvedValue({
+        ...mockProperty,
+        contracts: [],
+      });
+
+      await service.getById(1, '1', Role.ADMIN);
+
+      expect(mockFindUnique).toHaveBeenCalledWith({
+        where: {
+          id: 1,
+        },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          agent: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          contracts: {
+            select: {
+              id: true,
+              start_date: true,
+              end_date: true,
+              status: true,
+            },
+            orderBy: {
+              created_at: 'desc',
+            },
+          },
+        },
+      });
+    });
+
+    it('debe lanzar NotFoundError si el CORREDOR intenta acceder a una propiedad de otro corredor', async () => {
+      mockFindUnique.mockResolvedValue(null);
+
+      await expect(
+        service.getById(1, '5', Role.CORREDOR),
+      ).rejects.toBeInstanceOf(NotFoundError);
+
+      expect(mockFindUnique).toHaveBeenCalledWith({
+        where: {
+          id: 1,
+          agent_id: 5,
+        },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          agent: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          contracts: {
+            select: {
+              id: true,
+              start_date: true,
+              end_date: true,
+              status: true,
+            },
+            orderBy: {
+              created_at: 'desc',
+            },
+          },
+        },
+      });
     });
   });
 
@@ -1004,7 +1213,6 @@ describe('PropertiesService', () => {
       });
 
       mockContractFindFirst.mockResolvedValue(null);
-
       mockUserFindUnique.mockResolvedValueOnce(null);
 
       await expect(
@@ -1073,6 +1281,7 @@ describe('PropertiesService', () => {
       });
 
       mockContractFindFirst.mockResolvedValue(null);
+
       mockFindFirst.mockResolvedValue({
         id: 99,
       });

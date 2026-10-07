@@ -21,6 +21,7 @@ export class PropertiesController {
   };
   getAll = async (req: Request, res: Response) => {
     const { status, min_price, max_price, agent_id, owner_id } = req.query;
+    const idtoken = req.user!.sub;
 
     const result = await this.propertiesService.getAll({
       status: status as string | undefined,
@@ -28,14 +29,17 @@ export class PropertiesController {
       max_price: max_price !== undefined ? Number(max_price) : undefined,
       agent_id: agent_id !== undefined ? Number(agent_id) : undefined,
       owner_id: owner_id !== undefined ? Number(owner_id) : undefined,
+      idtoken,
     });
 
     return res.status(200).json(result);
   };
   getById = async (req: Request, res: Response) => {
     const id = req.params.id as unknown as number;
+    const userId = req.user!.sub;
+    const role = req.user!.role;
 
-    const property = await this.propertiesService.getById(id);
+    const property = await this.propertiesService.getById(id, userId!, role);
 
     return res.status(200).json(property);
   };

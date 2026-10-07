@@ -1,5 +1,4 @@
 import { prisma } from '../config/prismaConfig';
-import { JwtService } from '../services/jwt.service';
 import {
   CreatePropertyDto,
   PropertyDetailResponse,
@@ -157,9 +156,33 @@ export class PropertiesService {
     };
   }
   async getAll(filters: PropertyFilters = {}): Promise<PropertyResponse[]> {
-    const { status, min_price, max_price, agent_id, owner_id } = filters;
+    const { status, min_price, max_price, agent_id, owner_id, idtoken } =
+      filters;
+    const user = await prisma.users.findUnique({
+      where: {
+        id: Number(idtoken),
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundError('Usuario no encontrado');
+    }
 
     const normalizedStatus = status?.toUpperCase();
+    /**
+     * Si el usuario es CORREDOR y envía agent_id,
+     * debe corresponder al mismo usuario autenticado.
+     */
+    if (user.role.name === 'CORREDOR' && agent_id !== undefined) {
+      if (agent_id !== user.id) {
+        throw new BadRequestError(
+          'El agent_id no corresponde al usuario autenticado',
+        );
+      }
+    }
 
     const properties = await prisma.properties.findMany({
       where: {
@@ -206,12 +229,35 @@ export class PropertiesService {
       created_at: property.created_at,
     }));
   }
-  async getById(id: number): Promise<PropertyDetailResponse> {
+  async getById(
+    id: number,
+    userId: string,
+    role: Role,
+  ): Promise<PropertyDetailResponse> {
     const property = await prisma.properties.findUnique({
       where: {
         id,
+
+        ...(role === Role.CORREDOR && {
+          agent_id: Number(userId),
+        }),
       },
       include: {
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+
+        agent: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
         contracts: {
           select: {
             id: true,

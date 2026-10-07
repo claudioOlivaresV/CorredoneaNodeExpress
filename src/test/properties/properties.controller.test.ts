@@ -24,6 +24,7 @@ describe('PropertiesController', () => {
         max_price?: number;
         agent_id?: number;
         owner_id?: number;
+        idtoken?: string;
       }) => Promise<PropertyResponse[]>
     >();
 
@@ -52,6 +53,9 @@ describe('PropertiesController', () => {
       body: {},
       params: {},
       query: {},
+      user: {
+        sub: '2',
+      },
     } as unknown as Request;
 
     res = {
@@ -154,6 +158,7 @@ describe('PropertiesController', () => {
         max_price: undefined,
         agent_id: undefined,
         owner_id: undefined,
+        idtoken: '2',
       });
 
       expect(res.status).toHaveBeenCalledWith(200);
@@ -181,6 +186,7 @@ describe('PropertiesController', () => {
         max_price: 700000,
         agent_id: 10,
         owner_id: 20,
+        idtoken: '2',
       });
 
       expect(res.status).toHaveBeenCalledWith(200);
@@ -202,6 +208,7 @@ describe('PropertiesController', () => {
         max_price: undefined,
         agent_id: undefined,
         owner_id: undefined,
+        idtoken: '2',
       });
 
       expect(res.status).toHaveBeenCalledWith(200);
@@ -222,6 +229,7 @@ describe('PropertiesController', () => {
         max_price: undefined,
         agent_id: undefined,
         owner_id: undefined,
+        idtoken: '2',
       });
     });
 
@@ -240,6 +248,7 @@ describe('PropertiesController', () => {
         max_price: 700000,
         agent_id: undefined,
         owner_id: undefined,
+        idtoken: '2',
       });
     });
 
@@ -258,6 +267,7 @@ describe('PropertiesController', () => {
         max_price: undefined,
         agent_id: 10,
         owner_id: undefined,
+        idtoken: '2',
       });
     });
 
@@ -276,6 +286,7 @@ describe('PropertiesController', () => {
         max_price: undefined,
         agent_id: undefined,
         owner_id: 20,
+        idtoken: '2',
       });
     });
 
@@ -310,7 +321,8 @@ describe('PropertiesController', () => {
 
       await controller.getById(req, res);
 
-      expect(getByIdMock).toHaveBeenCalledWith('1');
+      expect(getByIdMock).toHaveBeenCalledWith('1', '2', undefined);
+
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(result);
     });
